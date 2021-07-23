@@ -3,6 +3,11 @@ from flask import Flask, json, request, render_template, make_response, jsonify
 import sqlite3
 import config
 import secrets
+import random
+import smtplib
+import ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 app = Flask(__name__)
 conn = sqlite3.connect(config.USER_DATABASE, check_same_thread=False)
@@ -29,7 +34,7 @@ def login():
         return "username or password or email is incorrect"
 
 @app.route('/add_user', methods=['POST'])
-def add_user():
+def signup():
     pass
     data = request.form
     username = data['username']
@@ -79,6 +84,40 @@ def add_user():
     conn.commit()
     send_data = {"status" : "OK", "token" : token}
     return send_data
+
+def send_vrification_code_email(sender_email_addr, receiver_email_addr, sender_email_password):
+    verification_code = ""
+    for i in range(5):
+        j = random.randint(0,9)
+        verification_code += str(j)
+    
+    message = MIMEMultipart("alternative")
+    message['Subject'] = "code taeed"
+    message['From'] = sender_email_addr
+    message['To'] = receiver_email_addr
+
+    Message = """\
+        <!DOCTYPE html>
+        <meta charset="utf-8">
+        <html>
+            <body>
+                <div dir="rtl">
+                <p>کد تایید دفترچه یادداشت : {}</p>
+                </div>
+            </body>
+        </html>"""
+
+    attach_html = MIMEText(Message, "html")
+    message.attach(attach_html)
+
+    contex = ssl.create_default_context()
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=contex) as server:
+        server.login(sender_email_addr, sender_email_password)
+        server.sendmail(sender_email_addr, receiver_email_addr, message.as_string())
+        server.close()
+    
+    return verification_code
+
 
 if __name__ == "__main__":
     app.run('0.0.0.0', 5000, debug=True)
