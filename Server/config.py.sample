@@ -1,1 +1,3 @@
 USER_DATABASE = "the database of users"
+SENDER_EMAIL = "verification code sender email address"
+Sender_EMAIL_PASSWORD = "verification code sender email password"

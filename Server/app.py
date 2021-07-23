@@ -29,9 +29,18 @@ def login():
     login_check = cur.fetchall()
     try:
         if login_check[0]:
-            return "Login seccsfully"
+            pass
     except IndexError:
-        return "username or password or email is incorrect"
+        return jsonify({"status" : "MATCH NOT FOUND"})
+    
+    verification = send_vrification_code_email(config.SENDER_EMAIL, email, config.SENDER_EMAIL_PASSWORD)
+    if verificate_email(verification):
+        cur.execute(f'SELECT * FROM users WHERE username = "{username}" AND password = "{password}"')
+        user_token = cur.fetchall()[0][2]
+        send_data = {"status" : "OK", "TOEKN" : user_token}
+        return jsonify(send_data)
+    else:
+        return jsonify({"status" : "VERIFICATION FAILED"})
 
 @app.route('/add_user', methods=['POST'])
 def signup():
@@ -66,6 +75,12 @@ def signup():
         return jsonify({"status" : "EMAIL MATCH FOUND"})
     else:
         return jsonify({"status" : "MATCH FOUND"})
+
+    verification = send_vrification_code_email(config.SENDER_EMAIL, email, config.SENDER_EMAIL_PASSWORD)
+    if verificate_email(verification):
+        pass
+    else:
+        return jsonify({"status" : "VERIFICATION FAILED"})
     
     if response == "NO MATCH FOUND":
         loop = True
@@ -83,7 +98,15 @@ def signup():
     cur.execute(f'INSERT INTO users (username, password, token, email) VALUES ("{username}", "{password}", "{token}", "{email}");')
     conn.commit()
     send_data = {"status" : "OK", "token" : token}
-    return send_data
+    return jsonify(send_data)
+
+@app.route('/verificate_email', methods = ['POST'])
+def verificate_email(verification_code):
+    data = request.form
+    if data['verification_code'] == verification_code:
+        return True
+    else:
+        return False
 
 def send_vrification_code_email(sender_email_addr, receiver_email_addr, sender_email_password):
     verification_code = ""
