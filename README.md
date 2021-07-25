@@ -17,4 +17,4 @@
 - [ ] Cleaning Code
 
 #### Mini TODO
-- [ ] email verification
+- [x] email verification
