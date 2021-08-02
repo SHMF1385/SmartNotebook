@@ -1,4 +1,3 @@
-from typing import Counter
 from flask import Flask, json, request, render_template, make_response, jsonify
 import sqlite3
 import config
@@ -8,6 +7,7 @@ import smtplib
 import ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import socket
 
 app = Flask(__name__)
 conn = sqlite3.connect(config.USER_DATABASE, check_same_thread=False)
@@ -21,9 +21,11 @@ def main_page():
 @app.route('/login', methods=['POST'])
 def login():
     data = request.form
-    username = data['username']
+    username = data['username'].upper()
     password = data['password']
-    email = data['email']
+    email = data['email'].split('@')
+    email[0] = email[0].replace('.', '')
+    email = email[0] + '@' + email[1]
 
     cur.execute(f'SELECT * FROM users WHERE username = \"{username}\" AND passsword = \"{password}\" AND email = "{email}";')
     login_check = cur.fetchall()
@@ -42,13 +44,15 @@ def login():
     else:
         return jsonify({"status" : "VERIFICATION FAILED"})
 
-@app.route('/add_user', methods=['POST'])
+@app.route('/signup', methods=['POST'])
 def signup():
     pass
     data = request.form
-    username = data['username']
+    username = data['username'].upper()
     password = data['password']
-    email = data['email']
+    email = data['email'].split('@')
+    email[0] = email[0].replace('.', '')
+    email = email[0] + '@' + email[1]
 
     cur.execute(f'SELECT * FROM users WHERE username = "{username}";')
     username_check = cur.fetchall()
@@ -68,7 +72,7 @@ def signup():
         email_check = True
 
     if username_check and email_check:
-        response = "NO MATCH FOUND"
+        pass
     elif not username_check and email_check:
         return jsonify({"status" : "USERNAME MATCH FOUND"})
     elif username_check and not email_check:
@@ -82,18 +86,17 @@ def signup():
     else:
         return jsonify({"status" : "VERIFICATION FAILED"})
     
-    if response == "NO MATCH FOUND":
-        loop = True
-        while loop:
-            token = secrets.token_hex(24)
-            cur.execute(f'SELECT * FROM users WHERE token = "{token}";')
-            token_check = cur.fetchall()
-            try:
-                if token_check[0]:
-                    continue
-            except IndexError:
-                token_check = True
-                loop = False
+    loop = True
+    while loop:
+        token = secrets.token_hex(24)
+        cur.execute(f'SELECT * FROM users WHERE token = "{token}";')
+        token_check = cur.fetchall()
+        try:
+            if token_check[0]:
+                continue
+        except IndexError:
+            token_check = True
+            loop = False
 
     cur.execute(f'INSERT INTO users (username, password, token, email) VALUES ("{username}", "{password}", "{token}", "{email}");')
     conn.commit()
@@ -102,9 +105,18 @@ def signup():
 
 @app.route('/verificate_email', methods = ['POST'])
 def verificate_email(verification_code):
-    data = request.form
-    if data['verification_code'] == verification_code:
-        return True
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind(('0.0.0.0', 5001))
+    server.listen(1)
+    server.settimeout(10)
+
+    connection, addr = server.accept()
+    verification_key = connection.recv(1024).decode()
+    if int(verification_key):
+        if verification_key == verification_code:
+            return True
+        else:
+            return False
     else:
         return False
 
@@ -115,17 +127,17 @@ def send_vrification_code_email(sender_email_addr, receiver_email_addr, sender_e
         verification_code += str(j)
     
     message = MIMEMultipart("alternative")
-    message['Subject'] = "code taeed"
+    message['Subject'] = "کد تایید"
     message['From'] = sender_email_addr
     message['To'] = receiver_email_addr
 
-    Message = """\
+    Message = f"""\
         <!DOCTYPE html>
         <meta charset="utf-8">
         <html>
             <body>
                 <div dir="rtl">
-                <p>کد تایید دفترچه یادداشت : {}</p>
+                <p>کد تایید دفترچه یادداشت : {verification_code}</p>
                 </div>
             </body>
         </html>"""
@@ -141,7 +153,7 @@ def send_vrification_code_email(sender_email_addr, receiver_email_addr, sender_e
     
     return verification_code
 
-
 if __name__ == "__main__":
+    cur.execute('CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT, token TEXT, email TEXT);')
     app.run('0.0.0.0', 5000, debug=True)
     conn.close()
