@@ -39,14 +39,13 @@ def login():
     if verificate_email(verification):
         cur.execute(f'SELECT * FROM users WHERE username = "{username}" AND password = "{password}"')
         user_token = cur.fetchall()[0][2]
-        send_data = {"status" : "OK", "TOEKN" : user_token}
+        send_data = {"status" : "OK", "Token" : user_token}
         return jsonify(send_data)
     else:
         return jsonify({"status" : "VERIFICATION FAILED"})
 
 @app.route('/signup', methods=['POST'])
 def signup():
-    pass
     data = request.form
     username = data['username'].upper()
     password = data['password']
@@ -100,7 +99,7 @@ def signup():
 
     cur.execute(f'INSERT INTO users (username, password, token, email) VALUES ("{username}", "{password}", "{token}", "{email}");')
     conn.commit()
-    send_data = {"status" : "OK", "token" : token}
+    send_data = {"status" : "OK", "Token" : token}
     return jsonify(send_data)
 
 @app.route('/verificate_email', methods = ['POST'])
@@ -108,7 +107,7 @@ def verificate_email(verification_code):
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(('0.0.0.0', 5001))
     server.listen(1)
-    server.settimeout(10)
+    server.settimeout(60)
 
     connection, addr = server.accept()
     verification_key = connection.recv(1024).decode()
@@ -123,8 +122,8 @@ def verificate_email(verification_code):
 def send_vrification_code_email(sender_email_addr, receiver_email_addr, sender_email_password):
     verification_code = ""
     for i in range(5):
-        j = random.randint(0,9)
-        verification_code += str(j)
+        rand = random.randint(0,9)
+        verification_code += str(rand)
     
     message = MIMEMultipart("alternative")
     message['Subject'] = "کد تایید"
