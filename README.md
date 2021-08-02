@@ -12,9 +12,10 @@
 
 ### TODO
 - [ ] Write program core
-- [ ] Create Desktop UI (Qt or ElectronJS)
-- [ ] Create Android UI (Flutter or React Native)
+- [ ] Create Desktop Client with Proton Native
+- [ ] Create Android Client with React Native
 - [ ] Cleaning Code
 
 #### Mini TODO
-- [ ] email verification
+- [x] email verification
+- [ ] learn React Native :/
