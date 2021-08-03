@@ -152,6 +152,10 @@ def send_vrification_code_email(sender_email_addr, receiver_email_addr, sender_e
     
     return verification_code
 
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('404.html'), 404
+
 if __name__ == "__main__":
     cur.execute('CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT, token TEXT, email TEXT);')
     app.run('0.0.0.0', 5000, debug=True)
