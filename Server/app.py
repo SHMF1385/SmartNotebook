@@ -1,4 +1,4 @@
-from flask import Flask, json, request, render_template, make_response, jsonify
+from flask import Flask, request, render_template, jsonify
 import sqlite3
 import config
 import secrets
@@ -15,7 +15,7 @@ cur = conn.cursor()
 
 @app.route('/', methods=['POST', 'GET'])
 def main_page():
-    #TODO : admin panel site
+    #home page
     pass
 
 @app.route('/login', methods=['POST'])
@@ -101,6 +101,23 @@ def signup():
     conn.commit()
     send_data = {"status" : "OK", "Token" : token}
     return jsonify(send_data)
+
+@app.route('/del_user', methods= ['POST'])
+def del_user():
+    data = request.form
+    username = data['username'].upper()
+    token = data['token']
+
+    cur.execute(f'SELECT * FROM users WHERE username = "{username}" AND token = "{token}";')
+    check = cur.fetchall()
+    try:
+        if check[0]:
+            pass
+    except IndexError:
+        return jsonify({'status': 'TOKEN NOT MATCHED'})
+    cur.execute(f'DELETE FROM users WHERE username="{username}"')
+    conn.commit()
+    return jsonify({'status': 'USER DELETED'})
 
 @app.route('/verificate_email', methods = ['POST'])
 def verificate_email(verification_code):
