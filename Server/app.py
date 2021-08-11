@@ -1,13 +1,15 @@
-from flask import Flask, request, render_template, jsonify
 import sqlite3
-import config
 import secrets
 import random
 import smtplib
 import ssl
+import socket
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import socket
+from datetime import datetime
+
+import config
+from flask import Flask, request, render_template, jsonify
 
 app = Flask(__name__)
 conn = sqlite3.connect(config.USER_DATABASE, check_same_thread=False)
@@ -168,6 +170,10 @@ def send_vrification_code_email(sender_email_addr, receiver_email_addr, sender_e
         server.close()
     
     return verification_code
+
+def get_datetime():
+    now = datetime.now()
+    return(str(now.year) + '/' + str(now.month) + '/' + str(now.day) + '-' + str(now.hour) + ':' + str(now.minute) + ':' + str(now.second))
 
 @app.errorhandler(404)
 def page_not_found(error):
