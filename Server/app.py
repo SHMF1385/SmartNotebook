@@ -193,6 +193,27 @@ def create_file():
     repo.create_file(f"{username}/{filename}.note", f"CREATE {username}/{filename} {get_datetime()}", str(content))
     return jsonify({'status': 'FILE CREATED'})
 
+@app.route('/update_file', methods=['POST'])
+def update_file():
+    username = request.form['username']
+    token = request.form['token']
+    filename = request.form['filename']
+    content = request.form['content']
+
+    cur.execute(f'SELECT * FROM users WHERE username = "{username}" AND token = "{token}";')
+    check = cur.fetchall()
+
+    try:
+        if check[0]:
+            pass
+    except IndexError:
+        return jsonify({'status': 'AUTHENTICATION FAILED'})
+
+    repo = Gdatabase.get_repo(config.GDATABASE_REPO)
+    contents = repo.get_contents(f"{username}/{filename}.note")
+    repo.update_file(contents.path, f"UPDATE {username}/{filename} {get_datetime()}" , content, contents.sha)
+    return jsonify({'status': 'FILE UPDATED'})
+
 def get_datetime():
     now = datetime.now()
     return(str(now.year) + '/' + str(now.month) + '/' + str(now.day) + '-' + str(now.hour) + ':' + str(now.minute) + ':' + str(now.second))
