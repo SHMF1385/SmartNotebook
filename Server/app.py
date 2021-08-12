@@ -10,10 +10,12 @@ from datetime import datetime
 
 import config
 from flask import Flask, request, render_template, jsonify
+from github import Github
 
 app = Flask(__name__)
 conn = sqlite3.connect(config.USER_DATABASE, check_same_thread=False)
 cur = conn.cursor()
+Gdatabase = Github(config.GITHUB_DATABASE_ACCESS_TOKEN)
 
 @app.route('/', methods=['POST', 'GET'])
 def main_page():
@@ -170,6 +172,25 @@ def send_vrification_code_email(sender_email_addr, receiver_email_addr, sender_e
         server.close()
     
     return verification_code
+
+@app.route('/create_file', methods=['POST'])
+def create_file():
+    username = request.form['username']
+    token = request.form['token']
+    filename = request.form['filename']
+    content = request.form['content']
+    cur.execute(f'SELECT * FROM users WHERE username = "{username}" AND token = "{token}')
+    check = cur.fetchall()
+
+    try:
+        if check[0]:
+            return jsonify({'status': 'token not matched'})
+    except:
+        pass
+
+    repo = Gdatabase.get_repo(config.GDATABASE_REPO)
+    repo.create_file(f"{username}/{filename}.note", f"{username}/{filename} {get_datetime()}", str(content))
+    return jsonify({'status': 'OK'})
 
 def get_datetime():
     now = datetime.now()
