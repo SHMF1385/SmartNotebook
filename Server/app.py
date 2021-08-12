@@ -214,8 +214,28 @@ def update_file():
     repo.update_file(contents.path, f"UPDATE {username}/{filename} {get_datetime()}" , content, contents.sha)
     return jsonify({'status': 'FILE UPDATED'})
 
+@app.route('/delete_file', methods=['POST'])
+def delete_file():
+    username = request.form['username']
+    token = request.form['token']
+    filename = request.form['filename']
+
+    cur.execute(f'SELECT * FROM users WHERE username = "{username}" AND token = "{token}";')
+    check = cur.fetchall()
+
+    try:
+        if check[0]:
+            pass
+    except IndexError:
+        return jsonify({'status': 'AUTHENTICATION FAILED'})
+
+    repo = Gdatabase.get_repo(config.GDATABASE_REPO)
+    contents = repo.get_contents(f"{username}/{filename}.note")
+    repo.delete_file(contents.path, f"DELETE {username}/{filename} {get_datetime()}", contents.sha)
+    return jsonify({'status': 'FILE DELETED'})
+
 def get_datetime():
-    now = datetime.now()
+    now = datetime.now()    
     return(str(now.year) + '/' + str(now.month) + '/' + str(now.day) + '-' + str(now.hour) + ':' + str(now.minute) + ':' + str(now.second))
 
 @app.errorhandler(404)
