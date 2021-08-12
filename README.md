@@ -18,4 +18,5 @@
 
 #### Mini TODO
 - [x] email verification
+- [ ] create admin panel
 - [ ] learn React Native :/
