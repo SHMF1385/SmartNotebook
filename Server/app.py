@@ -179,18 +179,19 @@ def create_file():
     token = request.form['token']
     filename = request.form['filename']
     content = request.form['content']
-    cur.execute(f'SELECT * FROM users WHERE username = "{username}" AND token = "{token}')
+    
+    cur.execute(f'SELECT * FROM users WHERE username="{username}" AND token="{token}";')
     check = cur.fetchall()
 
     try:
         if check[0]:
-            return jsonify({'status': 'token not matched'})
-    except:
-        pass
+            pass
+    except IndexError:
+        return jsonify({'status': 'AUTHENTICATION FAILED'})
 
     repo = Gdatabase.get_repo(config.GDATABASE_REPO)
-    repo.create_file(f"{username}/{filename}.note", f"{username}/{filename} {get_datetime()}", str(content))
-    return jsonify({'status': 'OK'})
+    repo.create_file(f"{username}/{filename}.note", f"CREATE {username}/{filename} {get_datetime()}", str(content))
+    return jsonify({'status': 'FILE CREATED'})
 
 def get_datetime():
     now = datetime.now()
