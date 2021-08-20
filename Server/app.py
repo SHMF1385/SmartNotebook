@@ -9,8 +9,9 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 
 import config
-from flask import Flask, request, render_template, jsonify
 from flask import Flask, request, render_template, jsonify, redirect, flash, abort
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from github import Github
 
 app = Flask(__name__)
@@ -18,6 +19,7 @@ conn = sqlite3.connect(config.USER_DATABASE, check_same_thread=False)
 cur = conn.cursor()
 Gdatabase = Github(config.GITHUB_DATABASE_ACCESS_TOKEN)
 app.config['SECRET_KEY'] = config.SECRET_KEY
+limiter = Limiter(app, key_func=get_remote_address)
 admin_loged_in = False
 
 @app.route('/', methods=['POST', 'GET'])
