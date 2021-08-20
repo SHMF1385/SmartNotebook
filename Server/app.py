@@ -213,9 +213,19 @@ def create_file():
     except IndexError:
         return jsonify({'status': 'AUTHENTICATION FAILED'})
 
-    repo = Gdatabase.get_repo(config.GDATABASE_REPO)
-    repo.create_file(f"{username}/{filename}.note", f"CREATE {username}/{filename} {get_datetime()}", str(content))
-    return jsonify({'status': 'FILE CREATED'})
+    try:
+        repo = Gdatabase.get_repo(config.GDATABASE_REPO)
+        repo.create_file(f"{username}/{filename}.note", f"CREATE {username}/{filename} {get_datetime()}", str(content))
+        cur.execute('SELECT count FROM created_files_status;')
+        created_files_count = cur.fetchone()[0]
+        cur.execute(f'UPDATE created_files_status SET count = {created_files_count + 1};')
+        cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("{username}", "ایجاد فایل", "{get_date()}", "{get_time()}", "موفق");')
+        conn.commit()
+        return jsonify({'status': 'FILE CREATED'})
+    except:
+        cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("{username}", "ایجاد فایل", "{get_date()}", "{get_time()}", "نا موفق");')
+        conn.commit()
+        return jsonify({'status': 'CREATE FILE FAILED'})
 
 @app.route('/update_file', methods=['POST'])
 def update_file():
