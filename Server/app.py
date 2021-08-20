@@ -242,7 +242,12 @@ def get_datetime():
 def page_not_found(error):
     return render_template('404.html'), 404
 
+@app.errorhandler(401)
+def access_denid(error):
+    return render_template('401.html'), 401
+
 if __name__ == "__main__":
     cur.execute('CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT, token TEXT, email TEXT);')
     app.run('0.0.0.0', 5000, debug=True)
+    conn.commit()
     conn.close()
