@@ -242,11 +242,20 @@ def update_file():
             pass
     except IndexError:
         return jsonify({'status': 'AUTHENTICATION FAILED'})
-
-    repo = Gdatabase.get_repo(config.GDATABASE_REPO)
-    contents = repo.get_contents(f"{username}/{filename}.note")
-    repo.update_file(contents.path, f"UPDATE {username}/{filename} {get_datetime()}" , content, contents.sha)
-    return jsonify({'status': 'FILE UPDATED'})
+    try:
+        repo = Gdatabase.get_repo(config.GDATABASE_REPO)
+        contents = repo.get_contents(f"{username}/{filename}.note")
+        repo.update_file(contents.path, f"UPDATE {username}/{filename} {get_datetime()}" , content, contents.sha)
+        cur.execute('SELECT count(updated_files) FROM files_status;')
+        updated_files_count = cur.fetchall()[0][0]
+        cur.execute(f'UPDATE updated_files_status SET count = {updated_files_count + 1});')
+        cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("{username}", "به روزرسانی فایل", "{get_date()}", "{get_time()}", "موفق");')
+        conn.commit()
+        return jsonify({'status': 'FILE UPDATED'})
+    except:
+        cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("{username}", "به روزرسانی فایل", "{get_date()}", "{get_time()}", "نا موفق");')
+        conn.commit()
+        return jsonify({'status': 'UPDATE FILE FAILED'})
 
 @app.route('/delete_file', methods=['POST'])
 def delete_file():
