@@ -272,10 +272,17 @@ def delete_file():
     except IndexError:
         return jsonify({'status': 'AUTHENTICATION FAILED'})
 
-    repo = Gdatabase.get_repo(config.GDATABASE_REPO)
-    contents = repo.get_contents(f"{username}/{filename}.note")
-    repo.delete_file(contents.path, f"DELETE {username}/{filename} {get_datetime()}", contents.sha)
-    return jsonify({'status': 'FILE DELETED'})
+    try:
+        repo = Gdatabase.get_repo(config.GDATABASE_REPO)
+        contents = repo.get_contents(f"{username}/{filename}.note")
+        repo.delete_file(contents.path, f"DELETE {username}/{filename} {get_datetime()}", contents.sha)
+        cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("{username}", "حذف فایل", "{get_date()}", "{get_time()}", "موفق");')
+        conn.commit()
+        return jsonify({'status': 'FILE DELETED'})
+    except:
+        cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("{username}", "حذف فایل", "{get_date()}", "{get_time()}", "نا موفق");')
+        conn.commit()
+        return jsonify({'status': 'DELETE FILE FAILED'})
 
 def get_datetime():
     now = datetime.now()    
