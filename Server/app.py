@@ -129,8 +129,21 @@ def del_user():
         if check[0]:
             pass
     except IndexError:
+        cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("{username}", "حذف حساب", "{get_date()}", "{get_time()}", "نا موفق");')
+        conn.commit()
         return jsonify({'status': 'TOKEN NOT MATCHED'})
-    cur.execute(f'DELETE FROM users WHERE username="{username}"')
+    cur.execute(f'DELETE FROM users WHERE username="{username}";')
+    repo = Gdatabase.get_repo(config.GDATABASE_REPO)
+    contents = repo.get_contents(f"{username}")
+    for filename in contents:
+        repo.delete_file(filename.path, f"DELETE USER FILES {username} {get_datetime()}", filename.sha)
+    cur.execute('SELECT count FROM deleted_users_status;')
+    deleted_users_count = cur.fetchone()[0]
+    cur.execute(f'UPDATE deleted_users_status SET count = {deleted_users_count + 1};')
+    cur.execute('SELECT count FROM actived_users_status;')
+    actived_users_count = cur.fetchone()[0]
+    cur.execute(f'UPDATE actived_users_status SET count = {actived_users_count - 1};')
+    cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("{username}", "delete user", "{get_date()}", "{get_time()}", "OK");')
     conn.commit()
     return jsonify({'status': 'USER DELETED'})
 
