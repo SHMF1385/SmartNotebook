@@ -247,7 +247,24 @@ def access_denid(error):
     return render_template('401.html'), 401
 
 if __name__ == "__main__":
-    cur.execute('CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT, token TEXT, email TEXT);')
+    cur.execute('CREATE TABLE IF NOT EXISTS users (username TEXT NOT NULL, password TEXT NOT NULL, token TEXT NOT NULL, email TEXT NOT NULL);')
+    cur.execute('CREATE TABLE IF NOT EXISTS logs (username TEXT NOT NULL, work TEXT NOT NULL, date TEXT NOT NULL, time TEXT NOT NULL, status TEXT NOT NULL)')
+    cur.execute('CREATE TABLE IF NOT EXISTS created_files_status (count INT);')
+    cur.execute('CREATE TABLE IF NOT EXISTS updated_files_status (count INT);')
+    cur.execute('CREATE TABLE IF NOT EXISTS actived_users_status (count INT);')
+    cur.execute('CREATE TABLE IF NOT EXISTS deleted_users_status (count INT);')
+
+    cur.execute('SELECT count FROM created_files_status;')
+    cur.execute('SELECT count FROM updated_files_status;')
+    cur.execute('SELECT count FROM actived_users_status;')
+    cur.execute('SELECT count FROM deleted_users_status;')
+    resault = cur.fetchmany(4)
+    if resault == []:
+        cur.execute('INSERT INTO created_files_status (count) VALUES (0);')
+        cur.execute('INSERT INTO updated_files_status (count) VALUES (0);')
+        cur.execute('INSERT INTO actived_users_status (count) VALUES (0);')
+        cur.execute('INSERT INTO deleted_users_status (count) VALUES (0);')
+        conn.commit()
     app.run('0.0.0.0', 5000, debug=True)
     conn.commit()
     conn.close()
