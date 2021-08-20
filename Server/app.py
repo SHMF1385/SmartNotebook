@@ -10,17 +10,69 @@ from datetime import datetime
 
 import config
 from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, redirect, flash, abort
 from github import Github
 
 app = Flask(__name__)
 conn = sqlite3.connect(config.USER_DATABASE, check_same_thread=False)
 cur = conn.cursor()
 Gdatabase = Github(config.GITHUB_DATABASE_ACCESS_TOKEN)
+app.config['SECRET_KEY'] = config.SECRET_KEY
+admin_loged_in = False
 
 @app.route('/', methods=['POST', 'GET'])
+@app.route('/')
 def main_page():
     #home page
     pass
+
+@app.route('/admin', methods=['POST', 'GET'])
+@limiter.limit('5 per minute')
+def admin():
+    if request.method == 'GET':
+        return render_template('login.html')
+    if request.method == 'POST':
+        data = request.form
+        username = data['username']
+        password = data['password']
+        if (username == config.ADMIN_USERNAME) and (password == config.ADMIN_PASSWORD):
+            cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("ادمین", "ورود ادمین", "{get_date()}", "{get_time()}", "موفق");')
+            flash('شما با موفقیت وارد شدید', 'success')
+            admin_loged_in = True
+            cur.execute('SELECT count FROM created_files_status;')
+            created_files_count = cur.fetchone()[0]
+            cur.execute('SELECT count FROM updated_files_status;')
+            updated_files_count = cur.fetchone()[0]
+            cur.execute('SELECT count FROM actived_users_status;')
+            actived_users_count = cur.fetchone()[0]
+            cur.execute('SELECT count FROM deleted_users_status;')
+            deleted_users_count = cur.fetchone()[0]
+            cur.execute('SELECT * FROM logs;')
+            logs = cur.fetchall()
+            logs = logs[::-1]
+            logs_value= []
+            for i in logs:
+                logs_value.append({'username': i[0], 'work': i[1], 'date': i[2], 'time': i[3], 'status': i[4]})
+            conn.commit()
+            return render_template('index.html', data={'created_files_count': str(created_files_count), 'updated_files_count': str(updated_files_count), 'actived_users_count': str(actived_users_count), 'deleted_users_count': str(deleted_users_count), 'logs': logs_value})
+        else:
+            flash('نام کاربری یا گذرواژه اشتباه است', 'danger')
+            cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("ادمین", "ورود ادمین", "{get_date()}", "{get_time()}", "نا موفق");')
+            conn.commit()
+            return redirect(request.url)
+
+@app.route('/admin/settings')
+def admin_settings():
+    # TODO: admin settings
+    pass
+
+@app.route('/admin/logout')
+def admin_logout():
+    if admin_loged_in:
+        admin_loged_in = False
+        return redirect('/')
+    else:
+        return abort(401)
 
 @app.route('/login', methods=['POST'])
 def login():

@@ -1,5 +1,4 @@
 Server/__pycache__
 Server/venv
-Server/Database.sqlite
-Server/venv
+Server/Database.db
 Server/config.py
