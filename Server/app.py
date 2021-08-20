@@ -22,7 +22,6 @@ app.config['SECRET_KEY'] = config.SECRET_KEY
 limiter = Limiter(app, key_func=get_remote_address)
 admin_loged_in = False
 
-@app.route('/', methods=['POST', 'GET'])
 @app.route('/')
 def main_page():
     #home page
@@ -223,7 +222,7 @@ def send_vrification_code_email(sender_email_addr, receiver_email_addr, sender_e
     for i in range(5):
         rand = random.randint(0,9)
         verification_code += str(rand)
-    
+
     message = MIMEMultipart("alternative")
     message['Subject'] = "کد تایید"
     message['From'] = sender_email_addr
@@ -248,7 +247,7 @@ def send_vrification_code_email(sender_email_addr, receiver_email_addr, sender_e
         server.login(sender_email_addr, sender_email_password)
         server.sendmail(sender_email_addr, receiver_email_addr, message.as_string())
         server.close()
-    
+
     return verification_code
 
 @app.route('/create_file', methods=['POST'])
@@ -257,7 +256,7 @@ def create_file():
     token = request.form['token']
     filename = request.form['filename']
     content = request.form['content']
-    
+
     cur.execute(f'SELECT * FROM users WHERE username="{username}" AND token="{token}";')
     check = cur.fetchall()
 
@@ -342,6 +341,7 @@ def get_date():
     now = datetime.now()
     return( str(now.year) + '/' + str(now.month) + '/' + str(now.day) )
 
+@app.route('/get_time', methods=['GET'])
 def get_time():
     now = datetime.now()
     return( str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
