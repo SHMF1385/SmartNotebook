@@ -293,8 +293,8 @@ def get_time():
     return( str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
 
 def get_datetime():
-    now = datetime.now()    
-    return(str(now.year) + '/' + str(now.month) + '/' + str(now.day) + '-' + str(now.hour) + ':' + str(now.minute) + ':' + str(now.second))
+    now = datetime.now()
+    return( str(now.year) + '/' + str(now.month) + '/' + str(now.day) + '-' + str(now.hour) + ':' + str(now.minute) + ':' + str(now.second) )
 
 @app.errorhandler(404)
 def page_not_found(error):
