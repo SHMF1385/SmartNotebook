@@ -76,18 +76,26 @@ def signup():
     if username_check and email_check:
         pass
     elif not username_check and email_check:
+        cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("{username}", "ایجاد حساب", "{get_date()}", "{get_time()}", "نا موفق");')
+        conn.commit()
         return jsonify({"status" : "USERNAME MATCH FOUND"})
     elif username_check and not email_check:
+        cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("{username}", "ایجاد حساب", "{get_date()}", "{get_time()}", "نا موفق");')
+        conn.commit()
         return jsonify({"status" : "EMAIL MATCH FOUND"})
     else:
+        cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("{username}", "ایجاد حساب", "{get_date()}", "{get_time()}", "نا موفق");')
+        conn.commit()
         return jsonify({"status" : "MATCH FOUND"})
 
     verification = send_vrification_code_email(config.SENDER_EMAIL, email, config.SENDER_EMAIL_PASSWORD)
     if verificate_email(verification):
         pass
     else:
+        cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("{username}", "ایجاد حساب", "{get_date()}", "{get_time()}", "نا موفق");')
+        conn.commit()
         return jsonify({"status" : "VERIFICATION FAILED"})
-    
+
     loop = True
     while loop:
         token = secrets.token_hex(24)
@@ -101,6 +109,10 @@ def signup():
             loop = False
 
     cur.execute(f'INSERT INTO users (username, password, token, email) VALUES ("{username}", "{password}", "{token}", "{email}");')
+    cur.execute('SELECT count FROM actived_users_status;')
+    actived_users_count = cur.fetchone()[0]
+    cur.execute(f'UPDATE actived_users_status SET count = {actived_users_count + 1};')
+    cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("{username}", "ایجاد حساب", "{get_date()}", "{get_time()}", "موفق");')
     conn.commit()
     send_data = {"status" : "OK", "Token" : token}
     return jsonify(send_data)
