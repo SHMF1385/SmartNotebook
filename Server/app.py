@@ -40,9 +40,7 @@ def login():
         cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("{username}", "ورود", "{get_date()}", "{get_time()}", "نا موفق");')
         conn.commit()
         return jsonify({"status" : "MATCH NOT FOUND"})
-    
-    verification = send_vrification_code_email(config.SENDER_EMAIL, email, config.SENDER_EMAIL_PASSWORD)
-    if verificate_email(verification):
+
         cur.execute(f'SELECT * FROM users WHERE username = "{username}" AND password = "{password}"')
         cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("{username}", "ورود", "{get_date()}", "{get_time()}", "موفق");')
         user_token = cur.fetchall()[0][2]
