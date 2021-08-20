@@ -11,12 +11,12 @@
 </div>
 
 ### TODO
-- [ ] Write program core
+- [x] Write program core
 - [ ] Create Desktop Client with Proton Native
 - [ ] Create Android Client with React Native
 - [ ] Cleaning Code
 
 #### Mini TODO
 - [x] email verification
-- [ ] create admin panel
+- [x] create admin panel
 - [ ] learn React Native :/
