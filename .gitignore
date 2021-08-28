@@ -1,4 +1,8 @@
-Server/__pycache__
-Server/venv
-Server/Database.db
-Server/config.py
+**/__pycache__
+
+#Flask Version
+Server//Flask/__pycache__
+Server/Flaskvenv
+Server/DjangoVenv
+Server/Flask/Database.db
+Server/Flask/config.py
