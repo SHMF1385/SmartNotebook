@@ -6,3 +6,6 @@ Server/Flaskvenv
 Server/DjangoVenv
 Server/Flask/Database.db
 Server/Flask/config.py
+
+#Django Version
+Server/Django/db.sqlite3
