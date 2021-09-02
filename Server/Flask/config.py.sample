@@ -1,6 +1,6 @@
-USER_DATABASE = "the database of users"
+DATABASE_FILE_NAME = "the database of users accounts and logs"
 SENDER_EMAIL = "verification code sender email address"
-Sender_EMAIL_PASSWORD = "verification code sender email password"
+SENDER_EMAIL_PASSWORD = "verification code sender email password"
 GITHUB_DATABASE_ACCESS_TOKEN = "github access token"
 GDATABASE_REPO = "database repository"
 ADMIN_USERNAME = "admin panel username"

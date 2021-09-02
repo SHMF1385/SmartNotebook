@@ -15,7 +15,7 @@ from flask_limiter.util import get_remote_address
 from github import Github
 
 app = Flask(__name__)
-conn = sqlite3.connect(config.USER_DATABASE, check_same_thread=False)
+conn = sqlite3.connect(config.DATABASE_FILE_NAME, check_same_thread=False)
 cur = conn.cursor()
 Gdatabase = Github(config.GITHUB_DATABASE_ACCESS_TOKEN)
 app.config['SECRET_KEY'] = config.SECRET_KEY
