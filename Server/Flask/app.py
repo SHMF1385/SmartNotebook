@@ -280,6 +280,34 @@ def create_file():
         conn.commit()
         return jsonify({'status': 'CREATE FILE FAILED'})
 
+@app.route('/get_file', methods=['POST'])
+def get_file():
+    data = request.form
+    username = data['username'].upper()
+    token = data['token']
+    filename = data['filename']
+
+    cur.execute(f'SELECT * FROM users WHERE username = "{username}" AND token = "{token}"')
+    check = cur.fetchone()
+
+    try:
+        if check[0]:
+            pass
+    except IndexError:
+        return jsonify({'status': 'AUTHENTICATION FAILED'})
+
+    try:
+        repo = Gdatabase.get_repo(config.GDATABASE_REPO)
+        file = repo.get_contents(f"{username}/{filename}.note")
+        file_content = file.decoded_content.decode()
+        cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("{username}", "دریافت محتوای فایل", "{get_date()}", "{get_time()}", "موفق");')
+        conn.commit()
+        return jsonify({'content': file_content})
+    except:
+        cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("{username}", "دریافت محتوای فایل", "{get_date()}", "{get_time()}", "نا موفق");')
+        conn.commit()
+        return jsonify({'status': 'CREATE FILE FAILED'})
+
 @app.route('/update_file', methods=['POST'])
 def update_file():
     username = request.form['username']
