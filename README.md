@@ -11,6 +11,7 @@
 </div>
 
 ### TODO
+- [ ] find a name for program :/
 - [x] Write program core
 - [ ] Create Desktop Client with Proton Native
 - [ ] Create Android Client with React Native
@@ -19,4 +20,4 @@
 #### Mini TODO
 - [x] email verification
 - [x] create admin panel
-- [ ] learn React Native :/
+- [x] learn React Native :)
