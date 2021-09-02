@@ -4,6 +4,7 @@ import random
 import smtplib
 import ssl
 import socket
+import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
@@ -386,7 +387,10 @@ def page_not_found(error):
 def access_denid(error):
     return render_template('401.html'), 401
 
-if __name__ == "__main__":
+def handle_database():
+    """if database not founded or removed : create database tables and values"""
+
+    # create database tables if not exists
     cur.execute('CREATE TABLE IF NOT EXISTS users (username TEXT NOT NULL, password TEXT NOT NULL, token TEXT NOT NULL, email TEXT NOT NULL);')
     cur.execute('CREATE TABLE IF NOT EXISTS logs (username TEXT NOT NULL, work TEXT NOT NULL, date TEXT NOT NULL, time TEXT NOT NULL, status TEXT NOT NULL)')
     cur.execute('CREATE TABLE IF NOT EXISTS created_files_status (count INT);')
@@ -405,6 +409,10 @@ if __name__ == "__main__":
         cur.execute('INSERT INTO actived_users_status (count) VALUES (0);')
         cur.execute('INSERT INTO deleted_users_status (count) VALUES (0);')
         conn.commit()
+
+if __name__ == "__main__":
+    if not os.path.isfile(config.DATABASE_FILE_NAME):
+        handle_database()
     app.run('0.0.0.0', 5000, debug=True)
     conn.commit()
     conn.close()
