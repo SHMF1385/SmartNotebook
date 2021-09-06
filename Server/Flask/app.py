@@ -1,3 +1,7 @@
+#!/usr/bin/python3
+
+# Copyleft Seyed Hosein Mousavi Fard 2021
+
 import sqlite3
 import secrets
 import random
