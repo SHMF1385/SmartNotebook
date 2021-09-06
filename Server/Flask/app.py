@@ -95,11 +95,11 @@ def login():
         conn.commit()
         return jsonify({"status" : "MATCH NOT FOUND"})
 
-        cur.execute(f'SELECT * FROM users WHERE username = "{username}" AND password = "{password}"')
-        cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("{username}", "ورود", "{get_date()}", "{get_time()}", "موفق");')
-        user_token = cur.fetchall()[0][2]
-        send_data = {"status" : "OK", "Token" : user_token}
-        return jsonify(send_data)
+    cur.execute(f'SELECT * FROM users WHERE username = "{username}" AND password = "{password}"')
+    cur.execute(f'INSERT INTO logs (username, work, date, time, status) VALUES ("{username}", "ورود", "{get_date()}", "{get_time()}", "موفق");')
+    user_token = cur.fetchall()[0][2]
+    send_data = {"status" : "OK", "Token" : user_token}
+    return jsonify(send_data)
 
 @app.route('/signup', methods=['POST'])
 def signup():
