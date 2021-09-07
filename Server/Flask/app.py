@@ -415,8 +415,7 @@ def handle_database():
         conn.commit()
 
 if __name__ == "__main__":
-    if not os.path.isfile(config.DATABASE_FILE_NAME):
-        handle_database()
+    handle_database()
     app.run('0.0.0.0', 5000, debug=True)
     conn.commit()
     conn.close()
