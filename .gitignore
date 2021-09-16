@@ -9,3 +9,4 @@ Server/Flask/config.py
 #Django Version
 Server/Django/db.sqlite3
 Server/vd
+Server/Django/Django/settings.py
