@@ -1,12 +1,11 @@
 **/__pycache__
 
 #Flask Version
-Server//Flask/__pycache__
-Server/vf
-Server/Flask/Database.db
-Server/Flask/config.py
+vf
+Flask/Database.db
+Flask/config.py
 
 #Django Version
-Server/Django/db.sqlite3
-Server/vd
-Server/Django/Django/settings.py
+Django/db.sqlite3
+vd
+Django/Django/settings.py
