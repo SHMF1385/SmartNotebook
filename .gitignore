@@ -4,8 +4,3 @@
 vf
 Flask/Database.db
 Flask/config.py
-
-#Django Version
-Django/db.sqlite3
-vd
-Django/Django/settings.py
