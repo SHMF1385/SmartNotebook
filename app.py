@@ -27,6 +27,10 @@ app.config['SECRET_KEY'] = config.SECRET_KEY
 limiter = Limiter(app, key_func=get_remote_address)
 admin_loged_in = False
 
+@app.route('/test', methods=['GET'])
+def test():
+    return "<h1>Server is online:)</h1>"
+
 @app.route('/')
 def main_page():
     #home page
