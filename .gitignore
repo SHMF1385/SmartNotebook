@@ -1,6 +1,4 @@
 **/__pycache__
-
-#Flask Version
-vf
-Flask/Database.db
-Flask/config.py
+venv
+Database.db
+config.py
